@@ -16,3 +16,4 @@ images/
 .env
 
 storage
+.vscode/
