@@ -5,7 +5,7 @@ from assistanttools.actions import get_llm_response, message_history, preload_mo
 import soundfile as sf
 import json
 import uuid
-from assistanttools.utils import check_if_exit, check_if_ignore
+from assistanttools.utils import check_if_exit, check_if_ignore, check_microphone, speak
 from config import config
 
 if config['USE_FASTER_WHISPER']:
@@ -48,7 +48,7 @@ class WakeWordListener:
 
     def listen_for_wake_word(self):
         recognizer = sr.Recognizer()
-        os.system(f"espeak 'Hello. I am ready to assist you.'")
+        speak("Hello. I am ready to assist you.")
         while True:
             with sr.Microphone() as source:
                 print("Awaiting wake word...")
@@ -71,9 +71,14 @@ class WakeWordListener:
                     file_path=f"{self.sounds_path}audio.wav")
 
                 if any(x in transcription.lower() for x in self.wake_word):
-                    os.system(f"espeak 'Yes?'")
+                    speak("Yes?")
                     self.action_engine.run_second_listener(timeout=self.timeout,
                                                            duration=self.phrase_time_limit)
+                    
+                # display the transription if the wake word is not detected
+                else:
+                    print(transcription)
+                    # speak("I am still listening.")
 
             except sr.UnknownValueError:
                 print("Could not understand audio")
@@ -88,7 +93,7 @@ class ActionEngine:
             ollama_model,
             message_history,
             store_conversations,
-            vision_model):
+            vision_model=None):
         self.sounds_path = sounds_path
         self.whisper_cpp_path = whisper_cpp_path
         self.whisper_model_path = whisper_model_path
@@ -123,7 +128,7 @@ class ActionEngine:
                     continue
 
                 if check_if_exit(transcription):
-                    os.system(f"espeak 'Program stopped. See you later!'")
+                    speak("Program stopped. See you later!")
                     # set message history to empty
                     self.message_history = [self.message_history[0]]
                     return
@@ -151,6 +156,8 @@ if __name__ == "__main__":
                                  message_history=message_history,
                                  store_conversations=config["STORE_CONVERSATIONS"],
                                  vision_model=config["VISION_MODEL"])
+    
+    check_microphone()
 
     wake_word_listener = WakeWordListener(timeout=config["TIMEOUT"],
                                           phrase_time_limit=config["PHRASE_TIME_LIMIT"],

@@ -2,6 +2,7 @@ from transformers import DetrImageProcessor, DetrForObjectDetection
 from PIL import Image
 import os
 from torch import tensor
+from assistanttools.utils import speak
 from config import config
 
 if config["VISION_MODEL"] == 'detr':
@@ -17,9 +18,9 @@ else:
 
 
 def generate_bounding_box_caption(model, processor):
-    os.system(f"espeak 'Taking a picture.'")
+    speak("Taking a picture.")
     os.system("libcamera-still -o images/detr-image.jpg")
-    os.system(f"espeak 'Analyzing the image.'")
+    speak("Analyzing the image.")
     image = Image.open("images/detr-image.jpg")
 
     inputs = processor(images=image, return_tensors="pt")
