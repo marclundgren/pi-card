@@ -78,13 +78,19 @@ def check_microphone():
         print("Say something:")
         try:
             audio = recognizer.listen(source, timeout=5)
+            value = recognizer.recognize_whisper(audio)
+            print("You said {}".format(value))
             print("Microphone is working!")
+            return True
+        except ModuleNotFoundError:
+            print("ModuleNotFoundError")
         except sr.WaitTimeoutError:
             print("Timeout: No audio detected.")
         except sr.RequestError as e:
             print(f"Error accessing the microphone: {e}")
         except sr.UnknownValueError:
             print("No audio detected.")
+    return False
 
 def speak(text):
     os.system(f"espeak -a {config['SPEECH_VOLUME']} '{text}'")
