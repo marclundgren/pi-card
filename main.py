@@ -74,8 +74,6 @@ class WakeWordListener:
                     speak("Yes?")
                     self.action_engine.run_second_listener(timeout=self.timeout,
                                                            duration=self.phrase_time_limit)
-                    
-                # display the transription if the wake word is not detected
                 else:
                     print(transcription)
                     # speak("I am still listening.")
