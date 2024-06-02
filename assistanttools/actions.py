@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from config import config
 from .generate_detr import generate_bounding_box_caption, model, processor
 from .generate_gguf import generate_gguf_stream
-from .utils import check_if_vision_mode, dictate_ollama_stream, remove_parentheses
+from .utils import check_if_vision_mode, dictate_ollama_stream, remove_parentheses, speak
 load_dotenv()
 
 message_history = [{
@@ -32,16 +32,16 @@ def get_llm_response(transcription, message_history, model_name='llama3:instruct
     if use_rag:
         # Experimental idea for supplmenting with external data. Tool use may be better but this could start.
         if 'weather' in transcription:
-            os.system(f"espeak 'Getting weather data.'")
+            speak("Getting weather data.")
             message_history = add_in_weather_data(
                 message_history, transcription)
         elif check_if_vision_mode(transcription):
-            os.system(f"espeak 'Getting image data.'")
+            speak("Taking a picture.")
             response, message_history = generate_image_response(
                 message_history, transcription)
             return response, message_history
         elif "news" in transcription:
-            os.system(f"espeak 'Getting news data.'")
+            speak("Getting news data.")
             message_history = add_in_news_data(message_history, transcription)
 
         else:
@@ -183,10 +183,10 @@ def generate_image_response(message_history, transcription):
         response = dictate_ollama_stream(stream)
 
     elif config["VISION_MODEL"] == 'moondream':
-        os.system(f"espeak 'Taking a picture.'")
+        speak("Taking a picture.")
 
         os.system("libcamera-still -o images/image.jpg")
-        os.system(f"espeak 'Analyzing the image.'")
+        speak("Analyzing the image.")
 
         prompt = '"<image>\n\nQuestion: What do you see?\n\nAnswer: "'
         response = ""
@@ -200,11 +200,11 @@ def generate_image_response(message_history, transcription):
                                           temp=0.):
             word += chunk
             if ' ' in chunk:
-                os.system(f"espeak '{word}'")
+                speak(word)
                 response += word
                 word = ""
 
-        os.system(f"espeak '{word}'")
+        speak(word)
 
     message_history.append({
         'role': 'user',

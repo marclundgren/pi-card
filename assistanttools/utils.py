@@ -1,5 +1,7 @@
 import re
 import os
+import speech_recognition as sr
+from config import config
 
 
 def check_if_vision_mode(transcription):
@@ -43,13 +45,13 @@ def dictate_ollama_stream(stream, early_stopping=False, max_spoken_tokens=250):
         if is_complete_word(text_chunk):
             streaming_word_clean = streaming_word.replace(
                 '"', "").replace("\n", " ").replace("'", "").replace("*", "").replace('-', '').replace(':', '').replace('!', '')
-            os.system(f"espeak '{streaming_word_clean}'")
+            speak(streaming_word_clean)
             streaming_word = ""
     if not early_stopping:
         streaming_word_clean = streaming_word.replace(
             '"', "").replace("\n", " ").replace("'", "").replace("*", "").replace('-', '').replace(':', '').replace('!', '')
 
-        os.system(f"espeak '{streaming_word_clean}'")
+        speak(streaming_word_clean)
 
     return response
 
@@ -69,3 +71,20 @@ def remove_parentheses(transcription):
     Remove parentheses and their contents from the transcription.
     """
     return re.sub(r"\(.*\)", "", transcription).strip()
+
+def check_microphone():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Say something:")
+        try:
+            audio = recognizer.listen(source, timeout=5)
+            print("Microphone is working!")
+        except sr.WaitTimeoutError:
+            print("Timeout: No audio detected.")
+        except sr.RequestError as e:
+            print(f"Error accessing the microphone: {e}")
+        except sr.UnknownValueError:
+            print("No audio detected.")
+
+def speak(text):
+    os.system(f"espeak -a {config['SPEECH_VOLUME']} '{text}'")
