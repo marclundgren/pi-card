@@ -8,6 +8,9 @@ import uuid
 from assistanttools.utils import check_if_exit, check_if_ignore, check_microphone, speak
 from config import config
 
+if config['START_WITH_MIC_CHECK']:
+    check_microphone()
+
 if config['USE_FASTER_WHISPER']:
     from faster_whisper import WhisperModel
     model = WhisperModel("base.en")
@@ -154,8 +157,6 @@ if __name__ == "__main__":
                                  message_history=message_history,
                                  store_conversations=config["STORE_CONVERSATIONS"],
                                  vision_model=config["VISION_MODEL"])
-    
-    check_microphone()
 
     wake_word_listener = WakeWordListener(timeout=config["TIMEOUT"],
                                           phrase_time_limit=config["PHRASE_TIME_LIMIT"],
