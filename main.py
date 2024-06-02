@@ -38,7 +38,7 @@ class WakeWordListener:
                  timeout,
                  phrase_time_limit,
                  sounds_path,
-                 wake_words,
+                 wake_word,
                  action_engine,
                  whisper_cpp_path,
                  whisper_model_path):
@@ -46,7 +46,7 @@ class WakeWordListener:
         self.timeout = timeout
         self.phrase_time_limit = phrase_time_limit
         self.sounds_path = sounds_path
-        self.wake_words = wake_words
+        self.wake_word = wake_word
         self.action_engine = action_engine
         self.whisper_cpp_path = whisper_cpp_path
         self.whisper_model_path = whisper_model_path
@@ -104,8 +104,8 @@ class WakeWordListener:
                 print("Transcription:", transcription)
 
                 # check if the wake word is detected
-                print("check if wake word is detected.... wake words:", self.wake_words)
-                if any(x in transcription.lower() for x in self.wake_words):
+                print("check if wake word is detected.... wake words:", self.wake_word)
+                if any(x in transcription.lower() for x in self.wake_word):
                     speak("Yes?")
                     self.action_engine.run_second_listener(timeout=self.timeout, duration=self.phrase_time_limit)
                     
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     wake_word_listener = WakeWordListener(timeout=config["TIMEOUT"],
                                           phrase_time_limit=config["PHRASE_TIME_LIMIT"],
                                           sounds_path=config["SOUNDS_PATH"],
-                                          wake_words=config["WAKE_WORDS"],
+                                          wake_word=config["WAKE_WORD"],
                                           action_engine=action_engine,
                                           whisper_cpp_path=config["WHISPER_CPP_PATH"],
                                           whisper_model_path=config["WHISPER_MODEL_PATH"])
