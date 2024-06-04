@@ -108,10 +108,8 @@ def check_microphone(sounds_path):
     with sr.Microphone(config["DEVICE_INDEX_MIC"]) as source:
         print("Say something:")
         try:
-            audio = recognizer.listen(source, timeout=5)
-            # value = recognizer.recognize_whisper(audio)
-            # print("You said {}".format(value))
-            value = transcribe_audio(
+            recognizer.listen(source, timeout=5)
+            transcribe_audio(
                 file_path=f"{sounds_path}audio.wav")
             print("Microphone is working!")
             return True
@@ -128,12 +126,9 @@ def check_microphone(sounds_path):
 def speak(text):
     os.system(f"espeak -a {config['SPEECH_VOLUME']} '{text}'")
     logger.info(text)
-    # print("speak: ", text)
 
 def log(*text):
     logger.info(*text)
-    # print(*text)
 
 def log_error(*text):
     logger.error(*text)
-    # print(*text)

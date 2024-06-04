@@ -42,7 +42,6 @@ class WakeWordListener:
                 except:
                     # dont crash if there is an error in recognizing audio
                     exc_type, exc_value, exc_traceback = sys.exc_info()
-                    # log_error(f"Caught exception: {exc_type.__name__}: {exc_value}")
                     log_error(f"Error in recognizing audio. Continuing...")
                     continue
                 
@@ -53,16 +52,12 @@ class WakeWordListener:
 
                     if value:
                         log("You said: {}".format(value))
-                    # else:
-                    #     print("No wake word detected... Transcription:", transcription)
-                    #     logger.info("No wake word detected... Transcription:", transcription)
                 except sr.UnknownValueError:
                     log_error("Could not understand audio")
                     continue
                 except:
                     # dont crash if there is an error in recognizing audio
                     exc_type, exc_value, exc_traceback = sys.exc_info()
-                    # log_error(f"Caught exception: {exc_type.__name__}: {exc_value}")
                     log_error("Error in recognizing audio. Continuing...")
                     continue
 
@@ -85,7 +80,6 @@ class WakeWordListener:
                     log("Transcription: No transcription")
 
                 # check if the wake word is detected
-                # print("check if wake word is detected.... wake words:", self.wake_word)
                 log("check if wake word is detected.... wake words: ", self.wake_word)
                 if any(x in transcription.lower() for x in self.wake_word):
                     speak("Yes?")
