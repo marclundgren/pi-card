@@ -64,7 +64,7 @@ def get_llm_response(transcription, message_history, model_name='llama3:instruct
         msg_history = message_history
 
     stream = ollama.chat(model=model_name,
-                         stream=True, messages=msg_history)
+                         stream=config['OLLAMA_CHAT_STREAM'], messages=msg_history)
 
     response = dictate_ollama_stream(stream)
 
@@ -178,7 +178,7 @@ def generate_image_response(message_history, transcription):
             """,
         })
         stream = ollama.chat(model=config["LOCAL_MODEL"],
-                             stream=True, messages=message_history)
+                             stream=config['OLLAMA_CHAT_STREAM'], messages=message_history)
 
         response = dictate_ollama_stream(stream)
 

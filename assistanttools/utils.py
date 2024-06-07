@@ -2,7 +2,38 @@ import re
 import os
 import speech_recognition as sr
 from config import config
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,  # Set the desired log level (e.g., INFO, DEBUG, WARNING)
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(),  # Log to console
+        # Add other handlers (e.g., FileHandler) if needed
+    ],
+)
+
+logger = logging.getLogger("my_app")
+# set logger file to config path if exists
+if os.path.exists(config["LOG_FILE_PATH"]):
+    logger.addHandler(logging.FileHandler(config["LOG_FILE_PATH"]))
+
+if config['USE_FASTER_WHISPER']:
+    from faster_whisper import WhisperModel
+    model = WhisperModel("base.en")
+
+    def transcribe_audio(file_path):
+        segments, _ = model.transcribe(file_path)
+        segments = list(segments)  # The transcription will actually run here.
+        transcript = " ".join([x.text for x in segments]).strip()
+        return transcript
+
+
+else:
+    from assistanttools.transcribe_gguf import transcribe_gguf
+
+    def transcribe_audio(file_path):
+        return transcribe_gguf(whisper_cpp_path=config["WHISPER_CPP_PATH"], model_path=config["WHISPER_MODEL_PATH"], file_path=file_path)
 
 def check_if_vision_mode(transcription):
     """
@@ -72,19 +103,32 @@ def remove_parentheses(transcription):
     """
     return re.sub(r"\(.*\)", "", transcription).strip()
 
-def check_microphone():
+def check_microphone(sounds_path):
     recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
+    with sr.Microphone(config["DEVICE_INDEX_MIC"]) as source:
         print("Say something:")
         try:
-            audio = recognizer.listen(source, timeout=5)
+            recognizer.listen(source, timeout=5)
+            transcribe_audio(
+                file_path=f"{sounds_path}audio.wav")
             print("Microphone is working!")
+            return True
+        except ModuleNotFoundError:
+            print("ModuleNotFoundError")
         except sr.WaitTimeoutError:
             print("Timeout: No audio detected.")
         except sr.RequestError as e:
             print(f"Error accessing the microphone: {e}")
         except sr.UnknownValueError:
             print("No audio detected.")
+    return False
 
 def speak(text):
     os.system(f"espeak -a {config['SPEECH_VOLUME']} '{text}'")
+    logger.info(text)
+
+def log(*text):
+    logger.info(*text)
+
+def log_error(*text):
+    logger.error(*text)
